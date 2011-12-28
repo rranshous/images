@@ -7,8 +7,8 @@ exception Exception
 }
 
 exception TumblrImageNotFound {
-    1: optional i32 image_id,
-    2: string msg
+    1: string msg,
+    2: i32 image_id
 }
 
 struct TumblrImage {
@@ -37,6 +37,9 @@ service TumblrImages {
                               5: string source_url)
     throws (1: Exception ex);
 
-    TumblrImage set_image (1: image TumblrImage)
+    TumblrImage set_image (1: TumblrImage image)
+    throws (1: Exception ex);
+
+    bool delete_image (1: i32 image_id)
     throws (1: Exception ex);
 }
