@@ -4,3 +4,6 @@
 [submodule "lib/blobby"]
 	path = lib/blobby
 	url = git@github.com:rranshous/blobby.git
+[submodule "lib/imgcompare"]
+	path = lib/imgcompare
+	url = git@github.com:rranshous/imgcompare.git

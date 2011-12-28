@@ -3,6 +3,7 @@ from lib.blobby import Blobby, o as bo
 from lib.discovery import connect
 
 from redis import Redis
+from imgcompare.avg import avg_hash
 
 class TumblrImagesHandler(object):
     def __init__(self, redis_host='127.0.0.1'):
@@ -16,7 +17,7 @@ class TumblrImagesHandler(object):
         # tumblrimages:datainstances:<shahash> = (ids)
         # tumblrimages:ids:timestamps = sorted (ids,timestamp)
         # tumblrimages:blog_urls = ['urls']
-        # tumblrimages:<blog_url>:blogimages = [ids]
+        # tumblrimages:<blog_url>:blogimages = (ids)
 
         # tumblrimages:id = {}
 
@@ -151,6 +152,34 @@ class TumblrImagesHandler(object):
 
         return image
 
+    def add_image(self, image):
+        """ like set but if we already have this image on this
+            blog we're not going to add it again. will also
+            fill out image stats (size, dimension) """
+
+        # we're only for new images, no i'ds allowed
+        # if u want to set an id by hand use set_image
+        if image.id:
+            raise o.Exception('Can not add image with id')
+
+        # update it's stats
+        image = self.populate_image_stats(image)
+
+        # check for a matching bhash on this blog
+        # get ids which are both in the bhash's set
+        # and also in the blog id set. get set intersection
+        i = self.rc.sinter('tumblrimages:datainstances:%s' % image.shahash,
+                           'tumblrimages:%s:blogimages' % image.root_blog_url)
+
+        # if we get back anything than we already have this image
+        # (image data) from this blog, we don't need to continue
+        # we'll return back their original msg, w/o the id set
+        if i:
+            return image
+
+        # so the image appears to be new, good for it
+        return self.set_image(image)
+
     def set_image(self, image):
         """ sets tumblr image data, returns tumblr image """
 
@@ -215,6 +244,35 @@ class TumblrImagesHandler(object):
         """ returns list of tumblr images, searches passed on passed params """
         pass
 
+    def populate_image_stats(self, image):
+        """ returns a TumblrImage w/ image data + stats filled
+            out """
+        ti = image
+        image_data = ti.data
+        ti.size = len(image_data)
+        try:
+            with connect(Blobby) as c:
+                ti.shahash = c.get_data_bhash(image_data)
+        except o.Exception, ex:
+            raise o.Exception('oException getting shahash: %s' % ex.msg)
+        except Exception, ex:
+            raise o.Exception('Exception getting shahash: %s' % ex)
+
+        try:
+            b = StringIO(image_data)
+            img = Image.open(b)
+        except Exception, ex:
+            raise o.Exception('Exception getting PIL img: %s' % ex)
+        try:
+            ti.dimensions = list(img.size)
+        except Exception, ex:
+            raise o.Exception('Exception getting dimensions: %s' % ex)
+        try:
+            ti.vhash = average_hash(img)
+        except Exception, ex:
+            raise o.Exception('Exception getting vhash: %s' % ex)
+
+        return ti
 
 def run():
     from run_services import serve_service
