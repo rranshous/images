@@ -3,7 +3,7 @@ from lib.blobby import Blobby, o as bo
 from lib.discovery import connect
 
 from redis import Redis
-from imgcompare.avg import avg_hash
+from lib.imgcompare.avg import average_hash
 
 class TumblrImagesHandler(object):
     def __init__(self, redis_host='127.0.0.1'):
