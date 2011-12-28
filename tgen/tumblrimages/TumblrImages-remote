@@ -26,6 +26,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
   print '   search(string source_blog_url, double since_timestamp, double before_timestamp,  ids, string source_url)'
   print '  TumblrImage set_image(TumblrImage image)'
   print '  bool delete_image(i32 image_id)'
+  print '  TumblrImage add_image(TumblrImage image)'
   print ''
   sys.exit(0)
 
@@ -105,6 +106,12 @@ elif cmd == 'delete_image':
     print 'delete_image requires 1 args'
     sys.exit(1)
   pp.pprint(client.delete_image(eval(args[0]),))
+
+elif cmd == 'add_image':
+  if len(args) != 1:
+    print 'add_image requires 1 args'
+    sys.exit(1)
+  pp.pprint(client.add_image(eval(args[0]),))
 
 else:
   print 'Unrecognized method %s' % cmd

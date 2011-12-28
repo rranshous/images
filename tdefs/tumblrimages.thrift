@@ -37,12 +37,13 @@ service TumblrImages {
                               5: string source_url)
     throws (1: Exception ex);
 
-    TumblrImage add_image (1: TumblrImage image)
-    throws (1: Exception ex)
-
     TumblrImage set_image (1: TumblrImage image)
     throws (1: Exception ex);
 
     bool delete_image (1: i32 image_id)
     throws (1: Exception ex);
+
+    TumblrImage add_image (1: TumblrImage image)
+    throws (1: Exception ex);
+
 }
