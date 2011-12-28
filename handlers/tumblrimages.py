@@ -164,7 +164,7 @@ class TumblrImagesHandler(object):
         if image.id:
             raise o.Exception('Can not add image with id')
 
-        if not image.data
+        if not image.data:
             raise o.Exception('Image must have data')
 
         # update it's stats
