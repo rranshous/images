@@ -1,4 +1,6 @@
 from tgen.tumblrimages import TumblrImages, ttypes as o
+from lib.blobby import Blobby, o as bo
+from lib.discovery import connect
 
 class TumblrImagesHandler(object):
     def __init__(self, redis_host='127.0.0.1'):
@@ -84,15 +86,44 @@ class TumblrImagesHandler(object):
 
         return None
 
+    def _populate_image_data(self, image):
+        if not image.shahash:
+            return None
+        with connect(Blobby) as c:
+            image.data = c.get_data(image.shahash)
+        return image
+
+    def _set_image_data(self, image):
+        if image.data is not None:
+            with connect(Blobby) as c:
+                image.shahash = c.set_data(image.data)
+        return image
+
     def get_image(self, image_id):
         """ returns TumblrImage for given id or blank TumblrImage """
 
         # see if we have an image
         image = self._get_from_redis(image_id)
-        if image is not None:
-            return image
-        else:
+
+        if not image:
             raise TumblrImageNotFound(image_id, 'Could not get image')
+
+        # pull the actual image data
+        self._populate_image_data(image)
+
+        return image
+
+    def set_image(self, tumblr_image):
+        """ sets tumblr image data, returns tumblr image """
+
+        if tumblr_image.data and not tumblr_image.shahash:
+            # save the images data
+            self._set_image_data(image)
+
+        # could be an update, could be new
+        image = self._save_to_redis(tumblr_image)
+
+        return image
 
     def get_images_since(self, image_id=None, timestamp=None):
         """ returns list of tublr images or blank list which were
@@ -118,16 +149,13 @@ class TumblrImagesHandler(object):
         # return images for each ID
         images = map(self._get_from_redis,ids)
 
+        # populate image data
+        map(self._populate_image_data,images)
+
         return images
 
     def search(self, source_blog_url=None, since_timestamp=None,
                      before_timestamp=None, ids=[], source_url=None):
         """ returns list of tumblr images, searches passed on passed params """
         pass
-
-    def set_image(self, tumblr_image):
-        """ sets tumblr image data, returns tumblr image """
-        # could be an update, could be new
-        image = self._save_to_redis(tumblr_image)
-        return image
 
