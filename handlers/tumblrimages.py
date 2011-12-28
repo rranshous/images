@@ -4,6 +4,8 @@ from lib.discovery import connect
 
 from redis import Redis
 from lib.imgcompare.avg import average_hash
+from cStringIO import StringIO
+from PIL import Image
 
 class TumblrImagesHandler(object):
     def __init__(self, redis_host='127.0.0.1'):
@@ -169,12 +171,13 @@ class TumblrImagesHandler(object):
         # get ids which are both in the bhash's set
         # and also in the blog id set. get set intersection
         i = self.rc.sinter('tumblrimages:datainstances:%s' % image.shahash,
-                           'tumblrimages:%s:blogimages' % image.root_blog_url)
+                           'tumblrimages:%s:blogimages' % image.source_blog_url)
 
         # if we get back anything than we already have this image
         # (image data) from this blog, we don't need to continue
         # we'll return back their original msg, w/o the id set
         if i:
+            print 'image exists: %s' % i
             return image
 
         # so the image appears to be new, good for it
@@ -183,7 +186,8 @@ class TumblrImagesHandler(object):
     def set_image(self, image):
         """ sets tumblr image data, returns tumblr image """
 
-        if image.data and not image.shahash:
+        # would be better if we only saved if it didn't exist
+        if image.data:
             # save the images data
             self._set_image_data(image)
 
@@ -249,6 +253,8 @@ class TumblrImagesHandler(object):
             out """
         ti = image
         image_data = ti.data
+        if not ti.data:
+            return ti
         ti.size = len(image_data)
         try:
             with connect(Blobby) as c:
@@ -268,7 +274,7 @@ class TumblrImagesHandler(object):
         except Exception, ex:
             raise o.Exception('Exception getting dimensions: %s' % ex)
         try:
-            ti.vhash = average_hash(img)
+            ti.vhash = str(average_hash(img))
         except Exception, ex:
             raise o.Exception('Exception getting vhash: %s' % ex)
 
