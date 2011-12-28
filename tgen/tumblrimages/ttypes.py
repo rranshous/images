@@ -156,38 +156,41 @@ class TumblrImage:
   Attributes:
    - id
    - size
-   - dimensions
    - vhash
    - source_blog_url
    - source_url
    - downloaded_at
    - shahash
    - data
+   - xdim
+   - ydim
   """
 
   thrift_spec = (
     None, # 0
     (1, TType.I32, 'id', None, None, ), # 1
     (2, TType.I32, 'size', None, None, ), # 2
-    (3, TType.LIST, 'dimensions', (TType.I32,None), None, ), # 3
-    (4, TType.STRING, 'vhash', None, None, ), # 4
-    (5, TType.STRING, 'source_blog_url', None, None, ), # 5
-    (6, TType.STRING, 'source_url', None, None, ), # 6
-    (7, TType.DOUBLE, 'downloaded_at', None, None, ), # 7
-    (8, TType.STRING, 'shahash', None, None, ), # 8
-    (9, TType.STRING, 'data', None, None, ), # 9
+    (3, TType.STRING, 'vhash', None, None, ), # 3
+    (4, TType.STRING, 'source_blog_url', None, None, ), # 4
+    (5, TType.STRING, 'source_url', None, None, ), # 5
+    (6, TType.DOUBLE, 'downloaded_at', None, None, ), # 6
+    (7, TType.STRING, 'shahash', None, None, ), # 7
+    (8, TType.STRING, 'data', None, None, ), # 8
+    (9, TType.I32, 'xdim', None, None, ), # 9
+    (10, TType.I32, 'ydim', None, None, ), # 10
   )
 
-  def __init__(self, id=None, size=None, dimensions=None, vhash=None, source_blog_url=None, source_url=None, downloaded_at=None, shahash=None, data=None,):
+  def __init__(self, id=None, size=None, vhash=None, source_blog_url=None, source_url=None, downloaded_at=None, shahash=None, data=None, xdim=None, ydim=None,):
     self.id = id
     self.size = size
-    self.dimensions = dimensions
     self.vhash = vhash
     self.source_blog_url = source_blog_url
     self.source_url = source_url
     self.downloaded_at = downloaded_at
     self.shahash = shahash
     self.data = data
+    self.xdim = xdim
+    self.ydim = ydim
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -209,43 +212,43 @@ class TumblrImage:
         else:
           iprot.skip(ftype)
       elif fid == 3:
-        if ftype == TType.LIST:
-          self.dimensions = []
-          (_etype3, _size0) = iprot.readListBegin()
-          for _i4 in xrange(_size0):
-            _elem5 = iprot.readI32();
-            self.dimensions.append(_elem5)
-          iprot.readListEnd()
-        else:
-          iprot.skip(ftype)
-      elif fid == 4:
         if ftype == TType.STRING:
           self.vhash = iprot.readString();
         else:
           iprot.skip(ftype)
-      elif fid == 5:
+      elif fid == 4:
         if ftype == TType.STRING:
           self.source_blog_url = iprot.readString();
         else:
           iprot.skip(ftype)
-      elif fid == 6:
+      elif fid == 5:
         if ftype == TType.STRING:
           self.source_url = iprot.readString();
         else:
           iprot.skip(ftype)
-      elif fid == 7:
+      elif fid == 6:
         if ftype == TType.DOUBLE:
           self.downloaded_at = iprot.readDouble();
         else:
           iprot.skip(ftype)
-      elif fid == 8:
+      elif fid == 7:
         if ftype == TType.STRING:
           self.shahash = iprot.readString();
         else:
           iprot.skip(ftype)
-      elif fid == 9:
+      elif fid == 8:
         if ftype == TType.STRING:
           self.data = iprot.readString();
+        else:
+          iprot.skip(ftype)
+      elif fid == 9:
+        if ftype == TType.I32:
+          self.xdim = iprot.readI32();
+        else:
+          iprot.skip(ftype)
+      elif fid == 10:
+        if ftype == TType.I32:
+          self.ydim = iprot.readI32();
         else:
           iprot.skip(ftype)
       else:
@@ -266,36 +269,37 @@ class TumblrImage:
       oprot.writeFieldBegin('size', TType.I32, 2)
       oprot.writeI32(self.size)
       oprot.writeFieldEnd()
-    if self.dimensions != None:
-      oprot.writeFieldBegin('dimensions', TType.LIST, 3)
-      oprot.writeListBegin(TType.I32, len(self.dimensions))
-      for iter6 in self.dimensions:
-        oprot.writeI32(iter6)
-      oprot.writeListEnd()
-      oprot.writeFieldEnd()
     if self.vhash != None:
-      oprot.writeFieldBegin('vhash', TType.STRING, 4)
+      oprot.writeFieldBegin('vhash', TType.STRING, 3)
       oprot.writeString(self.vhash)
       oprot.writeFieldEnd()
     if self.source_blog_url != None:
-      oprot.writeFieldBegin('source_blog_url', TType.STRING, 5)
+      oprot.writeFieldBegin('source_blog_url', TType.STRING, 4)
       oprot.writeString(self.source_blog_url)
       oprot.writeFieldEnd()
     if self.source_url != None:
-      oprot.writeFieldBegin('source_url', TType.STRING, 6)
+      oprot.writeFieldBegin('source_url', TType.STRING, 5)
       oprot.writeString(self.source_url)
       oprot.writeFieldEnd()
     if self.downloaded_at != None:
-      oprot.writeFieldBegin('downloaded_at', TType.DOUBLE, 7)
+      oprot.writeFieldBegin('downloaded_at', TType.DOUBLE, 6)
       oprot.writeDouble(self.downloaded_at)
       oprot.writeFieldEnd()
     if self.shahash != None:
-      oprot.writeFieldBegin('shahash', TType.STRING, 8)
+      oprot.writeFieldBegin('shahash', TType.STRING, 7)
       oprot.writeString(self.shahash)
       oprot.writeFieldEnd()
     if self.data != None:
-      oprot.writeFieldBegin('data', TType.STRING, 9)
+      oprot.writeFieldBegin('data', TType.STRING, 8)
       oprot.writeString(self.data)
+      oprot.writeFieldEnd()
+    if self.xdim != None:
+      oprot.writeFieldBegin('xdim', TType.I32, 9)
+      oprot.writeI32(self.xdim)
+      oprot.writeFieldEnd()
+    if self.ydim != None:
+      oprot.writeFieldBegin('ydim', TType.I32, 10)
+      oprot.writeI32(self.ydim)
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()

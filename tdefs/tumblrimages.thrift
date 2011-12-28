@@ -14,13 +14,14 @@ exception TumblrImageNotFound {
 struct TumblrImage {
     1: optional i32 id,
     2: optional i32 size,
-    3: optional list<i32> dimensions,
-    4: optional string vhash,
-    5: optional string source_blog_url,
-    6: optional string source_url,
-    7: optional double downloaded_at,
-    8: optional string shahash,
-    9: optional string data
+    3: optional string vhash,
+    4: optional string source_blog_url,
+    5: optional string source_url,
+    6: optional double downloaded_at,
+    7: optional string shahash,
+    8: optional string data,
+    9: optional i32 xdim,
+    10: optional i32 ydim
 }
 
 service TumblrImages {

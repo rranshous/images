@@ -226,7 +226,8 @@ class TumblrImagesHandler(object):
 
             # get the timestamp of the image
             timestamp = self.rc.hget('tumblrimages:%s' % image_id, 'timestamp')
-            timestamp = float(timestamp)
+            if timestamp:
+                timestamp = float(timestamp)
 
         if not timestamp:
             return []
@@ -270,7 +271,7 @@ class TumblrImagesHandler(object):
         except Exception, ex:
             raise o.Exception('Exception getting PIL img: %s' % ex)
         try:
-            ti.dimensions = list(img.size)
+            ti.xdim, ti.ydim = img.size
         except Exception, ex:
             raise o.Exception('Exception getting dimensions: %s' % ex)
         try:
