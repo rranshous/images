@@ -3,6 +3,7 @@ from lib.blobby import Blobby, o as bo
 from lib.discovery import connect
 
 from redis import Redis
+import time
 from lib.imgcompare.avg import average_hash
 from cStringIO import StringIO
 from PIL import Image
@@ -99,6 +100,8 @@ class TumblrImagesHandler(object):
         da = 0.0
         if image.downloaded_at:
             da = images.downloaded_at
+        else:
+            da = time.time()
         self.rc.zadd('tumblrimages:ids:timestamps',image.id,da)
 
         # take our image and make a dict
@@ -231,9 +234,13 @@ class TumblrImagesHandler(object):
             timestamp = self.rc.hget('tumblrimages:%s' % image_id, 'timestamp')
             if timestamp:
                 timestamp = float(timestamp)
+            else:
+                print 'could not find image by id'
 
         if not timestamp:
             return []
+
+        print 'from timestamp: %s' % timestamp
 
         # get ids from our sorted set by it's weight (aka timestamp)
         ids = self.rc.zrangebyscore('tumblrimages:ids:timestamps',
