@@ -28,7 +28,8 @@ service TumblrImages {
     TumblrImage get_image (1: i32 id)
     throws (1: Exception ex);
 
-    list<TumblrImage> get_images_since (1: i32 image_id, 2: double timestamp)
+    list<TumblrImage> get_images_since
+        (1: i32 image_id, 2: double timestamp, 3: i32 offset, 4: i32 limit)
     throws (1: Exception ex);
 
     list<TumblrImage> search (1: string source_blog_url,
