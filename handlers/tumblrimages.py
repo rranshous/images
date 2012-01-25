@@ -224,7 +224,8 @@ class TumblrImagesHandler(object):
         return True
 
 
-    def get_images_since(self, image_id=None, timestamp=None):
+    def get_images_since(self, image_id=None, timestamp=None,
+                               limit=10, offset=0):
         """ returns list of tublr images or blank list which were
             added after given image id or timestamp """
 
@@ -245,6 +246,9 @@ class TumblrImagesHandler(object):
         # get ids from our sorted set by it's weight (aka timestamp)
         ids = self.rc.zrangebyscore('tumblrimages:ids:timestamps',
                                     timestamp,'+inf')
+
+        # page ids
+        ids = ids[limit:offset]
 
         # return images for each ID
         images = map(self._get_from_redis,ids)
