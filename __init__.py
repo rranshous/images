@@ -1,1 +1,1 @@
-from tgen.tumblrimages import TumblrImages, ttypes as o
+from tgen.tumblrimages import Images, ttypes as o
