@@ -69,6 +69,7 @@ class ImagesHandler(object):
     def _save_to_redis(self, image):
         # if our image doesn't have an id, set it up w/ one
         if not image.id:
+            print 'got new image: %s' % image.shahash
             image.id = self.rc.incr('images:next_id')
             self.rc.sadd('images:datainstances:%s' % image.shahash,
                          image.id)
@@ -166,11 +167,11 @@ class ImagesHandler(object):
         # only add the image if we haven't seen it before
         # to do this we're going to have to see if there is another
         # image who has the same source page url and the same sha
-        # for now: get the set image:datainstances:<sha> for the
+        # for now: get the set images:datainstances:<sha> for the
         # image sha, pull the source_page_url for each one and comapre it
         found = False
-        for _id in self.rc.smembers('image:datainstances:%s' % image.shahash):
-            _source_url = self.rc.hget('image:%s'%_id,'source_page_url')
+        for _id in self.rc.smembers('images:datainstances:%s' % image.shahash):
+            _source_url = self.rc.hget('images:%s'%_id,'source_page_url')
             if _source_url == image.source_page_url:
                 found = True
                 break
