@@ -19,8 +19,6 @@ class ImagesHandler(object):
         # images:next_id = next_id
         # images:datainstances:<shahash> = (ids)
         # images:ids:timestamps = sorted (ids,timestamp)
-        # images:blog_urls = ['urls']
-        # images:<blog_url>:blogimages = (ids)
 
         # images:id = {}
 
@@ -56,10 +54,6 @@ class ImagesHandler(object):
 
     def _delete_from_redis(self, image):
 
-        # remove it from the blog images set
-        self.rc.srem('images:%s:blogimages'%image.source_blog_url,
-                     image.id)
-
         # remove it from the id set
         self.rc.zrem('images:ids:timestamps',image.id)
 
@@ -87,13 +81,6 @@ class ImagesHandler(object):
                          image.id)
             # add it to the new tracker
             self.rc.sadd('images:datainstances:%s' % image.shahash,
-                         image.id)
-
-        # if we know the source blog add in our entries
-        # for those sets
-        if image.source_blog_url:
-            self.rc.sadd('images:blog_urls',image.source_blog_url)
-            self.rc.sadd('images:%s:blogimages'%image.source_blog_url,
                          image.id)
 
         # update / set our timestamp
@@ -158,8 +145,8 @@ class ImagesHandler(object):
         return image
 
     def add_image(self, image):
-        """ like set but if we already have this image on this
-            blog we're not going to add it again. will also
+        """ like set but if we already have this image from this
+            page we're not going to add it again. will also
             fill out image stats (size, dimension) """
 
         # we're only for new images, no i'ds allowed
@@ -170,20 +157,29 @@ class ImagesHandler(object):
         if not image.data:
             raise o.Exception('Image must have data')
 
+        if not image.source_page_url:
+            raise o.Exception('Image must have source page url')
+
         # update it's stats
         image = self.populate_image_stats(image)
 
-        # check for a matching bhash on this blog
-        # get ids which are both in the bhash's set
-        # and also in the blog id set. get set intersection
-        i = self.rc.sinter('images:datainstances:%s' % image.shahash,
-                           'images:%s:blogimages' % image.source_blog_url)
+        # only add the image if we haven't seen it before
+        # to do this we're going to have to see if there is another
+        # image who has the same source page url and the same sha
+        # for now: get the set image:datainstances:<sha> for the
+        # image sha, pull the source_page_url for each one and comapre it
+        found = False
+        for _id in self.rc.smembers('image:datainstances:%s' % image.shahash):
+            _source_url = self.rc.hget('image:%s'%_id,'source_page_url')
+            if _source_url == image.source_page_url:
+                found = True
+                break
 
-        # if we get back anything than we already have this image
-        # (image data) from this blog, we don't need to continue
+
+        # we don't need to continue
         # we'll return back their original msg, w/o the id set
-        if i:
-            print 'image exists: %s' % i
+        if found:
+            print 'image already exists, not setting'
             return image
 
         # so the image appears to be new, good for it
