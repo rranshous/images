@@ -13,7 +13,7 @@ from thrift.transport import TSocket
 from thrift.transport import THttpClient
 from thrift.protocol import TBinaryProtocol
 
-import TumblrImages
+import Images
 from ttypes import *
 
 if len(sys.argv) <= 1 or sys.argv[1] == '--help':
@@ -21,12 +21,12 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
   print 'Usage: ' + sys.argv[0] + ' [-h host:port] [-u url] [-f[ramed]] function [arg1 [arg2...]]'
   print ''
   print 'Functions:'
-  print '  TumblrImage get_image(i32 id)'
-  print '   get_images_since(i32 image_id, double timestamp)'
+  print '  Image get_image(i32 id)'
+  print '   get_images_since(i32 image_id, double timestamp, i32 offset, i32 limit)'
   print '   search(string source_blog_url, double since_timestamp, double before_timestamp,  ids, string source_url)'
-  print '  TumblrImage set_image(TumblrImage image)'
+  print '  Image set_image(Image image)'
   print '  bool delete_image(i32 image_id)'
-  print '  TumblrImage add_image(TumblrImage image)'
+  print '  Image add_image(Image image)'
   print ''
   sys.exit(0)
 
@@ -74,7 +74,7 @@ else:
   else:
     transport = TTransport.TBufferedTransport(socket)
 protocol = TBinaryProtocol.TBinaryProtocol(transport)
-client = TumblrImages.Client(protocol)
+client = Images.Client(protocol)
 transport.open()
 
 if cmd == 'get_image':
@@ -84,10 +84,10 @@ if cmd == 'get_image':
   pp.pprint(client.get_image(eval(args[0]),))
 
 elif cmd == 'get_images_since':
-  if len(args) != 2:
-    print 'get_images_since requires 2 args'
+  if len(args) != 4:
+    print 'get_images_since requires 4 args'
     sys.exit(1)
-  pp.pprint(client.get_images_since(eval(args[0]),eval(args[1]),))
+  pp.pprint(client.get_images_since(eval(args[0]),eval(args[1]),eval(args[2]),eval(args[3]),))
 
 elif cmd == 'search':
   if len(args) != 5:

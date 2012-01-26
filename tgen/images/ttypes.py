@@ -77,7 +77,7 @@ class Exception(Exception):
   def __ne__(self, other):
     return not (self == other)
 
-class TumblrImageNotFound(Exception):
+class ImageNotFound(Exception):
   """
   Attributes:
    - msg
@@ -122,7 +122,7 @@ class TumblrImageNotFound(Exception):
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-    oprot.writeStructBegin('TumblrImageNotFound')
+    oprot.writeStructBegin('ImageNotFound')
     if self.msg != None:
       oprot.writeFieldBegin('msg', TType.STRING, 1)
       oprot.writeString(self.msg)
@@ -151,7 +151,7 @@ class TumblrImageNotFound(Exception):
   def __ne__(self, other):
     return not (self == other)
 
-class TumblrImage:
+class Image:
   """
   Attributes:
    - id
@@ -260,7 +260,7 @@ class TumblrImage:
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-    oprot.writeStructBegin('TumblrImage')
+    oprot.writeStructBegin('Image')
     if self.id != None:
       oprot.writeFieldBegin('id', TType.I32, 1)
       oprot.writeI32(self.id)
