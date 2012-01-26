@@ -157,7 +157,7 @@ class Image:
    - id
    - size
    - vhash
-   - source_blog_url
+   - source_page_url
    - source_url
    - downloaded_at
    - shahash
@@ -171,7 +171,7 @@ class Image:
     (1, TType.I32, 'id', None, None, ), # 1
     (2, TType.I32, 'size', None, None, ), # 2
     (3, TType.STRING, 'vhash', None, None, ), # 3
-    (4, TType.STRING, 'source_blog_url', None, None, ), # 4
+    (4, TType.STRING, 'source_page_url', None, None, ), # 4
     (5, TType.STRING, 'source_url', None, None, ), # 5
     (6, TType.DOUBLE, 'downloaded_at', None, None, ), # 6
     (7, TType.STRING, 'shahash', None, None, ), # 7
@@ -180,11 +180,11 @@ class Image:
     (10, TType.I32, 'ydim', None, None, ), # 10
   )
 
-  def __init__(self, id=None, size=None, vhash=None, source_blog_url=None, source_url=None, downloaded_at=None, shahash=None, data=None, xdim=None, ydim=None,):
+  def __init__(self, id=None, size=None, vhash=None, source_page_url=None, source_url=None, downloaded_at=None, shahash=None, data=None, xdim=None, ydim=None,):
     self.id = id
     self.size = size
     self.vhash = vhash
-    self.source_blog_url = source_blog_url
+    self.source_page_url = source_page_url
     self.source_url = source_url
     self.downloaded_at = downloaded_at
     self.shahash = shahash
@@ -218,7 +218,7 @@ class Image:
           iprot.skip(ftype)
       elif fid == 4:
         if ftype == TType.STRING:
-          self.source_blog_url = iprot.readString();
+          self.source_page_url = iprot.readString();
         else:
           iprot.skip(ftype)
       elif fid == 5:
@@ -273,9 +273,9 @@ class Image:
       oprot.writeFieldBegin('vhash', TType.STRING, 3)
       oprot.writeString(self.vhash)
       oprot.writeFieldEnd()
-    if self.source_blog_url != None:
-      oprot.writeFieldBegin('source_blog_url', TType.STRING, 4)
-      oprot.writeString(self.source_blog_url)
+    if self.source_page_url != None:
+      oprot.writeFieldBegin('source_page_url', TType.STRING, 4)
+      oprot.writeString(self.source_page_url)
       oprot.writeFieldEnd()
     if self.source_url != None:
       oprot.writeFieldBegin('source_url', TType.STRING, 5)
