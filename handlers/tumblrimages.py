@@ -102,7 +102,7 @@ class TumblrImagesHandler(object):
         # update / set our timestamp
         da = 0.0
         if image.downloaded_at:
-            da = images.downloaded_at
+            da = image.downloaded_at
         else:
             da = time.time()
         self.rc.zadd('tumblrimages:ids:timestamps',image.id,da)
@@ -234,21 +234,27 @@ class TumblrImagesHandler(object):
 
         if image_id:
 
-            # get the timestamp of the image
-            timestamp = self.rc.hget('tumblrimages:%s' % image_id, 'timestamp')
-            if timestamp:
-                timestamp = float(timestamp)
-            else:
-                print 'could not find image by id'
+            print 'from id: %s' % image_id
 
-        if not timestamp:
-            return []
+            # quick and dirty for now
+            # figure out what the current id is and than grab
+            # our sorted set by index assuming that all ids
+            # contain an image
+            next_id = self.rc.get('tumblrimages:next_id')
 
-        print 'from timestamp: %s' % timestamp
+            # how far from the end is the id given
+            d = int(next_id) - image_id
 
-        # get ids from our sorted set by it's weight (aka timestamp)
-        ids = self.rc.zrangebyscore('tumblrimages:ids:timestamps',
-                                    timestamp,'+inf')
+            # grab the list going that far back
+            ids = self.rc.zrange('tumblrimages:ids:timestamps',-d,-1)
+
+        elif timestamp:
+
+            print 'from timestamp: %s' % timestamp
+
+            # get ids from our sorted set by it's weight (aka timestamp)
+            ids = self.rc.zrangebyscore('tumblrimages:ids:timestamps',
+                                        timestamp,'+inf')
 
         # page ids
         ids = ids[limit:offset]
