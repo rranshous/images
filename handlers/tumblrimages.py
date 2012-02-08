@@ -26,8 +26,11 @@ class TumblrImagesHandler(object):
 
     def _image_to_dict(self, image):
         data = {}
+        ignored_attrs = ['data']
         for attrs in image.thrift_spec[1:]:
             attr = attrs[2]
+            if attr in ignored_attrs:
+                continue
             v = getattr(image,attr)
             if v is not None:
                 data[attr] = v
