@@ -463,7 +463,7 @@ class get_image_result:
   """
 
   thrift_spec = (
-    (0, TType.STRUCT, 'success', (TumblrImage, TumblrImage.thrift_spec), None, ), # 0
+    (0, TType.STRUCT, 'success', (Image, Image.thrift_spec), None, ), # 0
     (1, TType.STRUCT, 'ex', (Exception, Exception.thrift_spec), None, ), # 1
   )
 
@@ -482,7 +482,7 @@ class get_image_result:
         break
       if fid == 0:
         if ftype == TType.STRUCT:
-          self.success = TumblrImage()
+          self.success = Image()
           self.success.read(iprot)
         else:
           iprot.skip(ftype)
@@ -598,11 +598,19 @@ class get_images_since_args:
       oprot.writeFieldBegin('timestamp', TType.DOUBLE, 2)
       oprot.writeDouble(self.timestamp)
       oprot.writeFieldEnd()
+<<<<<<< HEAD
     if self.offset is not None:
       oprot.writeFieldBegin('offset', TType.I32, 3)
       oprot.writeI32(self.offset)
       oprot.writeFieldEnd()
     if self.limit is not None:
+=======
+    if self.offset != None:
+      oprot.writeFieldBegin('offset', TType.I32, 3)
+      oprot.writeI32(self.offset)
+      oprot.writeFieldEnd()
+    if self.limit != None:
+>>>>>>> generic
       oprot.writeFieldBegin('limit', TType.I32, 4)
       oprot.writeI32(self.limit)
       oprot.writeFieldEnd()
@@ -632,7 +640,7 @@ class get_images_since_result:
   """
 
   thrift_spec = (
-    (0, TType.LIST, 'success', (TType.STRUCT,(TumblrImage, TumblrImage.thrift_spec)), None, ), # 0
+    (0, TType.LIST, 'success', (TType.STRUCT,(Image, Image.thrift_spec)), None, ), # 0
     (1, TType.STRUCT, 'ex', (Exception, Exception.thrift_spec), None, ), # 1
   )
 
@@ -654,7 +662,7 @@ class get_images_since_result:
           self.success = []
           (_etype3, _size0) = iprot.readListBegin()
           for _i4 in xrange(_size0):
-            _elem5 = TumblrImage()
+            _elem5 = Image()
             _elem5.read(iprot)
             self.success.append(_elem5)
           iprot.readListEnd()
@@ -829,7 +837,7 @@ class search_result:
   """
 
   thrift_spec = (
-    (0, TType.LIST, 'success', (TType.STRUCT,(TumblrImage, TumblrImage.thrift_spec)), None, ), # 0
+    (0, TType.LIST, 'success', (TType.STRUCT,(Image, Image.thrift_spec)), None, ), # 0
     (1, TType.STRUCT, 'ex', (Exception, Exception.thrift_spec), None, ), # 1
   )
 
@@ -851,7 +859,7 @@ class search_result:
           self.success = []
           (_etype17, _size14) = iprot.readListBegin()
           for _i18 in xrange(_size14):
-            _elem19 = TumblrImage()
+            _elem19 = Image()
             _elem19.read(iprot)
             self.success.append(_elem19)
           iprot.readListEnd()
@@ -910,7 +918,7 @@ class set_image_args:
 
   thrift_spec = (
     None, # 0
-    (1, TType.STRUCT, 'image', (TumblrImage, TumblrImage.thrift_spec), None, ), # 1
+    (1, TType.STRUCT, 'image', (Image, Image.thrift_spec), None, ), # 1
   )
 
   def __init__(self, image=None,):
@@ -927,7 +935,7 @@ class set_image_args:
         break
       if fid == 1:
         if ftype == TType.STRUCT:
-          self.image = TumblrImage()
+          self.image = Image()
           self.image.read(iprot)
         else:
           iprot.skip(ftype)
@@ -971,7 +979,7 @@ class set_image_result:
   """
 
   thrift_spec = (
-    (0, TType.STRUCT, 'success', (TumblrImage, TumblrImage.thrift_spec), None, ), # 0
+    (0, TType.STRUCT, 'success', (Image, Image.thrift_spec), None, ), # 0
     (1, TType.STRUCT, 'ex', (Exception, Exception.thrift_spec), None, ), # 1
   )
 
@@ -990,7 +998,7 @@ class set_image_result:
         break
       if fid == 0:
         if ftype == TType.STRUCT:
-          self.success = TumblrImage()
+          self.success = Image()
           self.success.read(iprot)
         else:
           iprot.skip(ftype)
@@ -1176,7 +1184,7 @@ class add_image_args:
 
   thrift_spec = (
     None, # 0
-    (1, TType.STRUCT, 'image', (TumblrImage, TumblrImage.thrift_spec), None, ), # 1
+    (1, TType.STRUCT, 'image', (Image, Image.thrift_spec), None, ), # 1
   )
 
   def __init__(self, image=None,):
@@ -1193,7 +1201,7 @@ class add_image_args:
         break
       if fid == 1:
         if ftype == TType.STRUCT:
-          self.image = TumblrImage()
+          self.image = Image()
           self.image.read(iprot)
         else:
           iprot.skip(ftype)
@@ -1237,7 +1245,7 @@ class add_image_result:
   """
 
   thrift_spec = (
-    (0, TType.STRUCT, 'success', (TumblrImage, TumblrImage.thrift_spec), None, ), # 0
+    (0, TType.STRUCT, 'success', (Image, Image.thrift_spec), None, ), # 0
     (1, TType.STRUCT, 'ex', (Exception, Exception.thrift_spec), None, ), # 1
   )
 
@@ -1256,7 +1264,7 @@ class add_image_result:
         break
       if fid == 0:
         if ftype == TType.STRUCT:
-          self.success = TumblrImage()
+          self.success = Image()
           self.success.read(iprot)
         else:
           iprot.skip(ftype)

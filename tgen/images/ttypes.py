@@ -80,7 +80,11 @@ class Exception(TException):
   def __ne__(self, other):
     return not (self == other)
 
+<<<<<<< HEAD
 class TumblrImageNotFound(TException):
+=======
+class ImageNotFound(Exception):
+>>>>>>> generic
   """
   Attributes:
    - msg
@@ -125,8 +129,13 @@ class TumblrImageNotFound(TException):
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
+<<<<<<< HEAD
     oprot.writeStructBegin('TumblrImageNotFound')
     if self.msg is not None:
+=======
+    oprot.writeStructBegin('ImageNotFound')
+    if self.msg != None:
+>>>>>>> generic
       oprot.writeFieldBegin('msg', TType.STRING, 1)
       oprot.writeString(self.msg)
       oprot.writeFieldEnd()
@@ -155,13 +164,13 @@ class TumblrImageNotFound(TException):
   def __ne__(self, other):
     return not (self == other)
 
-class TumblrImage:
+class Image:
   """
   Attributes:
    - id
    - size
    - vhash
-   - source_blog_url
+   - source_page_url
    - source_url
    - downloaded_at
    - shahash
@@ -175,7 +184,7 @@ class TumblrImage:
     (1, TType.I32, 'id', None, None, ), # 1
     (2, TType.I32, 'size', None, None, ), # 2
     (3, TType.STRING, 'vhash', None, None, ), # 3
-    (4, TType.STRING, 'source_blog_url', None, None, ), # 4
+    (4, TType.STRING, 'source_page_url', None, None, ), # 4
     (5, TType.STRING, 'source_url', None, None, ), # 5
     (6, TType.DOUBLE, 'downloaded_at', None, None, ), # 6
     (7, TType.STRING, 'shahash', None, None, ), # 7
@@ -184,11 +193,11 @@ class TumblrImage:
     (10, TType.I32, 'ydim', None, None, ), # 10
   )
 
-  def __init__(self, id=None, size=None, vhash=None, source_blog_url=None, source_url=None, downloaded_at=None, shahash=None, data=None, xdim=None, ydim=None,):
+  def __init__(self, id=None, size=None, vhash=None, source_page_url=None, source_url=None, downloaded_at=None, shahash=None, data=None, xdim=None, ydim=None,):
     self.id = id
     self.size = size
     self.vhash = vhash
-    self.source_blog_url = source_blog_url
+    self.source_page_url = source_page_url
     self.source_url = source_url
     self.downloaded_at = downloaded_at
     self.shahash = shahash
@@ -222,7 +231,7 @@ class TumblrImage:
           iprot.skip(ftype)
       elif fid == 4:
         if ftype == TType.STRING:
-          self.source_blog_url = iprot.readString();
+          self.source_page_url = iprot.readString();
         else:
           iprot.skip(ftype)
       elif fid == 5:
@@ -264,8 +273,13 @@ class TumblrImage:
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
+<<<<<<< HEAD
     oprot.writeStructBegin('TumblrImage')
     if self.id is not None:
+=======
+    oprot.writeStructBegin('Image')
+    if self.id != None:
+>>>>>>> generic
       oprot.writeFieldBegin('id', TType.I32, 1)
       oprot.writeI32(self.id)
       oprot.writeFieldEnd()
@@ -277,9 +291,15 @@ class TumblrImage:
       oprot.writeFieldBegin('vhash', TType.STRING, 3)
       oprot.writeString(self.vhash)
       oprot.writeFieldEnd()
+<<<<<<< HEAD
     if self.source_blog_url is not None:
       oprot.writeFieldBegin('source_blog_url', TType.STRING, 4)
       oprot.writeString(self.source_blog_url)
+=======
+    if self.source_page_url != None:
+      oprot.writeFieldBegin('source_page_url', TType.STRING, 4)
+      oprot.writeString(self.source_page_url)
+>>>>>>> generic
       oprot.writeFieldEnd()
     if self.source_url is not None:
       oprot.writeFieldBegin('source_url', TType.STRING, 5)

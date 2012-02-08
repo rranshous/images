@@ -1,4 +1,4 @@
-from tgen.tumblrimages import TumblrImages, ttypes as o
+from tgen.images import Images, ttypes as o
 from lib.blobby import Blobby, o as bo
 from lib.discovery import connect
 
@@ -8,7 +8,7 @@ from lib.imgcompare.avg import average_hash
 from cStringIO import StringIO
 from PIL import Image
 
-class TumblrImagesHandler(object):
+class ImagesHandler(object):
     def __init__(self, redis_host='127.0.0.1'):
         self.redis_host = redis_host
         self.rc = Redis(redis_host)
@@ -16,13 +16,11 @@ class TumblrImagesHandler(object):
         ## we are going to store the image data in redis using
         ## the id as the main key
 
-        # tumblrimages:next_id = next_id
-        # tumblrimages:datainstances:<shahash> = (ids)
-        # tumblrimages:ids:timestamps = sorted (ids,timestamp)
-        # tumblrimages:blog_urls = ['urls']
-        # tumblrimages:<blog_url>:blogimages = (ids)
+        # images:next_id = next_id
+        # images:datainstances:<shahash> = (ids)
+        # images:ids:timestamps = sorted (ids,timestamp)
 
-        # tumblrimages:id = {}
+        # images:id = {}
 
     def _image_to_dict(self, image):
         data = {}
@@ -37,7 +35,7 @@ class TumblrImagesHandler(object):
         return data
 
     def _dict_to_image(self, data):
-        image = o.TumblrImage()
+        image = o.Image()
         for attrs in image.thrift_spec[1:]:
             attr = attrs[2]
             v = data.get(attr)
@@ -59,18 +57,14 @@ class TumblrImagesHandler(object):
 
     def _delete_from_redis(self, image):
 
-        # remove it from the blog images set
-        self.rc.srem('tumblrimages:%s:blogimages'%image.source_blog_url,
-                     image.id)
-
         # remove it from the id set
-        self.rc.zrem('tumblrimages:ids:timestamps',image.id)
+        self.rc.zrem('images:ids:timestamps',image.id)
 
         # remove it's hash
-        self.rc.delete('tumblrimages:%s' % image.id)
+        self.rc.delete('images:%s' % image.id)
 
         # decriment the count for it's image data
-        self.rc.srem('tumblrimages:datainstances:%s' % image.shahash,
+        self.rc.srem('images:datainstances:%s' % image.shahash,
                      image.id)
 
         return True
@@ -78,25 +72,19 @@ class TumblrImagesHandler(object):
     def _save_to_redis(self, image):
         # if our image doesn't have an id, set it up w/ one
         if not image.id:
-            image.id = self.rc.incr('tumblrimages:next_id')
-            self.rc.sadd('tumblrimages:datainstances:%s' % image.shahash,
+            print 'got new image: %s' % image.shahash
+            image.id = self.rc.incr('images:next_id')
+            self.rc.sadd('images:datainstances:%s' % image.shahash,
                          image.id)
 
         # check and see if we used to have a different shahash
-        old_shahash = self.rc.hget('tumblrimages:%s' % image.id,'shahash')
+        old_shahash = self.rc.hget('images:%s' % image.id,'shahash')
         if old_shahash != image.shahash:
             # remove our id from the old shahash tracker
-            self.rc.srem('tumblrimages:datainstances:%s' % old_shahash,
+            self.rc.srem('images:datainstances:%s' % old_shahash,
                          image.id)
             # add it to the new tracker
-            self.rc.sadd('tumblrimages:datainstances:%s' % image.shahash,
-                         image.id)
-
-        # if we know the source blog add in our entries
-        # for those sets
-        if image.source_blog_url:
-            self.rc.sadd('tumblrimages:blog_urls',image.source_blog_url)
-            self.rc.sadd('tumblrimages:%s:blogimages'%image.source_blog_url,
+            self.rc.sadd('images:datainstances:%s' % image.shahash,
                          image.id)
 
         # update / set our timestamp
@@ -105,7 +93,7 @@ class TumblrImagesHandler(object):
             da = image.downloaded_at
         else:
             da = time.time()
-        self.rc.zadd('tumblrimages:ids:timestamps',image.id,da)
+        self.rc.zadd('images:ids:timestamps',image.id,da)
 
         # take our image and make a dict
         # TODO: if this fails than all the operations we did above
@@ -114,16 +102,16 @@ class TumblrImagesHandler(object):
         image_data = self._image_to_dict(image)
 
         # set our data to redis
-        key = 'tumblrimages:%s' % image.id
+        key = 'images:%s' % image.id
         self.rc.hmset(key,image_data)
 
         return image
 
     def _get_from_redis(self, image_id):
         # if the image id is in the id set than pull it's details
-        if self.rc.zrank('tumblrimages:ids:timestamps',image_id) is not None:
+        if self.rc.zrank('images:ids:timestamps',image_id) is not None:
             # get the image data from redis
-            key = 'tumblrimages:%s' % image_id
+            key = 'images:%s' % image_id
             image_data = self.rc.hgetall(key)
             if not image_data:
                 print 'redis had no image data'
@@ -147,13 +135,13 @@ class TumblrImagesHandler(object):
         return image
 
     def get_image(self, image_id):
-        """ returns TumblrImage for given id or blank TumblrImage """
+        """ returns Image for given id or blank Image """
 
         # see if we have an image
         image = self._get_from_redis(image_id)
 
         if not image:
-            raise o.TumblrImageNotFound('Could not get image', image_id)
+            raise o.ImageNotFound('Could not get image', image_id)
 
         # pull the actual image data
         self._populate_image_data(image)
@@ -161,8 +149,8 @@ class TumblrImagesHandler(object):
         return image
 
     def add_image(self, image):
-        """ like set but if we already have this image on this
-            blog we're not going to add it again. will also
+        """ like set but if we already have this image from this
+            page we're not going to add it again. will also
             fill out image stats (size, dimension) """
 
         # we're only for new images, no i'ds allowed
@@ -173,27 +161,36 @@ class TumblrImagesHandler(object):
         if not image.data:
             raise o.Exception('Image must have data')
 
+        if not image.source_page_url:
+            raise o.Exception('Image must have source page url')
+
         # update it's stats
         image = self.populate_image_stats(image)
 
-        # check for a matching bhash on this blog
-        # get ids which are both in the bhash's set
-        # and also in the blog id set. get set intersection
-        i = self.rc.sinter('tumblrimages:datainstances:%s' % image.shahash,
-                           'tumblrimages:%s:blogimages' % image.source_blog_url)
+        # only add the image if we haven't seen it before
+        # to do this we're going to have to see if there is another
+        # image who has the same source page url and the same sha
+        # for now: get the set images:datainstances:<sha> for the
+        # image sha, pull the source_page_url for each one and comapre it
+        found = False
+        for _id in self.rc.smembers('images:datainstances:%s' % image.shahash):
+            _source_url = self.rc.hget('images:%s'%_id,'source_page_url')
+            if _source_url == image.source_page_url:
+                found = True
+                break
 
-        # if we get back anything than we already have this image
-        # (image data) from this blog, we don't need to continue
+
+        # we don't need to continue
         # we'll return back their original msg, w/o the id set
-        if i:
-            print 'image exists: %s' % i
+        if found:
+            print 'image already exists, not setting'
             return image
 
         # so the image appears to be new, good for it
         return self.set_image(image)
 
     def set_image(self, image):
-        """ sets tumblr image data, returns tumblr image """
+        """ sets image data, returns image """
 
         # would be better if we only saved if it didn't exist
         if image.data:
@@ -211,14 +208,14 @@ class TumblrImagesHandler(object):
         # get it's image obj
         try:
             image = self.get_image(image_id)
-        except o.TumblrImageNotFound, ex:
+        except o.ImageNotFound, ex:
             return False
 
         # delete the redis data
         self._delete_from_redis(image)
 
         # see if we need to remove the image data
-        if self.rc.scard('tumblrimages:datainstances:%s' % image.shahash) == 0:
+        if self.rc.scard('images:datainstances:%s' % image.shahash) == 0:
             # no more images w/ the same data, remove image data
             with connect(Blobby) as c:
                 c.delete_data(image.shahash)
@@ -233,8 +230,6 @@ class TumblrImagesHandler(object):
             added after given image id or timestamp """
 
         if image_id:
-
-            print 'from id: %s' % image_id
 
             # quick and dirty for now
             # figure out what the current id is and than grab
@@ -269,11 +264,11 @@ class TumblrImagesHandler(object):
 
     def search(self, source_blog_url=None, since_timestamp=None,
                      before_timestamp=None, ids=[], source_url=None):
-        """ returns list of tumblr images, searches passed on passed params """
+        """ returns list of  images, searches passed on passed params """
         pass
 
     def populate_image_stats(self, image):
-        """ returns a TumblrImage w/ image data + stats filled
+        """ returns a Image w/ image data + stats filled
             out """
         ti = image
         image_data = ti.data
@@ -306,4 +301,4 @@ class TumblrImagesHandler(object):
 
 def run():
     from run_services import serve_service
-    serve_service(TumblrImages, TumblrImagesHandler())
+    serve_service(Images, ImagesHandler())
