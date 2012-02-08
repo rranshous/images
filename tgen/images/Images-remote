@@ -23,11 +23,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
   print 'Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] function [arg1 [arg2...]]'
   print ''
   print 'Functions:'
-<<<<<<< HEAD
-  print '  TumblrImage get_image(i32 id)'
-=======
   print '  Image get_image(i32 id)'
->>>>>>> generic
   print '   get_images_since(i32 image_id, double timestamp, i32 offset, i32 limit)'
   print '   search(string source_blog_url, double since_timestamp, double before_timestamp,  ids, string source_url)'
   print '  Image set_image(Image image)'

@@ -80,11 +80,7 @@ class Exception(TException):
   def __ne__(self, other):
     return not (self == other)
 
-<<<<<<< HEAD
-class TumblrImageNotFound(TException):
-=======
-class ImageNotFound(Exception):
->>>>>>> generic
+class ImageNotFound(TException):
   """
   Attributes:
    - msg
@@ -129,13 +125,8 @@ class ImageNotFound(Exception):
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-<<<<<<< HEAD
-    oprot.writeStructBegin('TumblrImageNotFound')
-    if self.msg is not None:
-=======
     oprot.writeStructBegin('ImageNotFound')
-    if self.msg != None:
->>>>>>> generic
+    if self.msg is not None:
       oprot.writeFieldBegin('msg', TType.STRING, 1)
       oprot.writeString(self.msg)
       oprot.writeFieldEnd()
@@ -273,13 +264,8 @@ class Image:
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-<<<<<<< HEAD
-    oprot.writeStructBegin('TumblrImage')
-    if self.id is not None:
-=======
     oprot.writeStructBegin('Image')
-    if self.id != None:
->>>>>>> generic
+    if self.id is not None:
       oprot.writeFieldBegin('id', TType.I32, 1)
       oprot.writeI32(self.id)
       oprot.writeFieldEnd()
@@ -291,15 +277,9 @@ class Image:
       oprot.writeFieldBegin('vhash', TType.STRING, 3)
       oprot.writeString(self.vhash)
       oprot.writeFieldEnd()
-<<<<<<< HEAD
-    if self.source_blog_url is not None:
-      oprot.writeFieldBegin('source_blog_url', TType.STRING, 4)
-      oprot.writeString(self.source_blog_url)
-=======
-    if self.source_page_url != None:
+    if self.source_page_url is not None:
       oprot.writeFieldBegin('source_page_url', TType.STRING, 4)
       oprot.writeString(self.source_page_url)
->>>>>>> generic
       oprot.writeFieldEnd()
     if self.source_url is not None:
       oprot.writeFieldBegin('source_url', TType.STRING, 5)

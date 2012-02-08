@@ -598,19 +598,11 @@ class get_images_since_args:
       oprot.writeFieldBegin('timestamp', TType.DOUBLE, 2)
       oprot.writeDouble(self.timestamp)
       oprot.writeFieldEnd()
-<<<<<<< HEAD
     if self.offset is not None:
       oprot.writeFieldBegin('offset', TType.I32, 3)
       oprot.writeI32(self.offset)
       oprot.writeFieldEnd()
     if self.limit is not None:
-=======
-    if self.offset != None:
-      oprot.writeFieldBegin('offset', TType.I32, 3)
-      oprot.writeI32(self.offset)
-      oprot.writeFieldEnd()
-    if self.limit != None:
->>>>>>> generic
       oprot.writeFieldBegin('limit', TType.I32, 4)
       oprot.writeI32(self.limit)
       oprot.writeFieldEnd()
