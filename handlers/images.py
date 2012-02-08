@@ -24,8 +24,11 @@ class ImagesHandler(object):
 
     def _image_to_dict(self, image):
         data = {}
+        ignore_attrs = ['data']
         for attrs in image.thrift_spec[1:]:
             attr = attrs[2]
+            if attr in ignore_attrs:
+                continue
             v = getattr(image,attr)
             if v is not None:
                 data[attr] = v
