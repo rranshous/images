@@ -13,13 +13,24 @@ class ImagesHandler(object):
         self.redis_host = redis_host
         self.rc = Redis(redis_host)
 
-        ## we are going to store the image data in redis using
-        ## the id as the main key
+        # redis keys
 
+        # incr this for the next image id
         # images:next_id = next_id
+
+        # all the images for the given sha
         # images:datainstances:<shahash> = (ids)
+
+        # timestamp of when image was added
         # images:ids:timestamps = sorted (ids,timestamp)
 
+        # all the image ids for the page
+        # images:page_ids:<page_url> = sorted (ids,timestamp)
+
+        # last time an image was added from page
+        # images:pages:timestamps = sorted (url,timestamp)
+
+        # images meta data
         # images:id = {}
 
     def _image_to_dict(self, image):
@@ -57,35 +68,51 @@ class ImagesHandler(object):
 
     def _delete_from_redis(self, image):
 
+        # make these a transaction
+        pipe = self.rc.pipeline()
+
         # remove it from the id set
-        self.rc.zrem('images:ids:timestamps',image.id)
+        pipe.zrem('images:ids:timestamps',image.id)
 
         # remove it's hash
-        self.rc.delete('images:%s' % image.id)
+        pipe.delete('images:%s' % image.id)
 
         # decriment the count for it's image data
-        self.rc.srem('images:datainstances:%s' % image.shahash,
+        pipe.srem('images:datainstances:%s' % image.shahash,
                      image.id)
+
+        # remove image from the page's id set
+        if image.source_page_url:
+            pipe.zrem('images:page_ids:%s' % image.source_page_url,
+                      image.id)
+
+        # make it happen
+        pipe.execute()
 
         return True
 
     def _save_to_redis(self, image):
+
+        # make these a transaction
+        pipe = self.rc.pipeline()
+
         # if our image doesn't have an id, set it up w/ one
         if not image.id:
             print 'got new image: %s' % image.shahash
-            image.id = self.rc.incr('images:next_id')
-            self.rc.sadd('images:datainstances:%s' % image.shahash,
+            image.id = pipe.incr('images:next_id')
+            pipe.sadd('images:datainstances:%s' % image.shahash,
                          image.id)
 
         # check and see if we used to have a different shahash
-        old_shahash = self.rc.hget('images:%s' % image.id,'shahash')
+        old_shahash = pipe.hget('images:%s' % image.id,'shahash')
         if old_shahash != image.shahash:
             # remove our id from the old shahash tracker
-            self.rc.srem('images:datainstances:%s' % old_shahash,
+            pipe.srem('images:datainstances:%s' % old_shahash,
                          image.id)
             # add it to the new tracker
-            self.rc.sadd('images:datainstances:%s' % image.shahash,
+            pipe.sadd('images:datainstances:%s' % image.shahash,
                          image.id)
+
 
         # update / set our timestamp
         da = 0.0
@@ -93,17 +120,25 @@ class ImagesHandler(object):
             da = image.downloaded_at
         else:
             da = time.time()
-        self.rc.zadd('images:ids:timestamps',image.id,da)
+        pipe.zadd('images:ids:timestamps',da,image.id)
+
+        # add this image to the page's id set
+        if image.source_page_url:
+            pipe.zadd('images:page_ids:%s' % image.source_page_url,
+                         da, image.id)
+
+            # update our last scrape time for the page
+            pipe.zadd('images:pages:timestamps',image.source_page_url)
 
         # take our image and make a dict
-        # TODO: if this fails than all the operations we did above
-        #       will still have gone through but we will have failed
-        #       ... =/
         image_data = self._image_to_dict(image)
 
         # set our data to redis
         key = 'images:%s' % image.id
-        self.rc.hmset(key,image_data)
+        pipe.hmset(key,image_data)
+
+        # execute our pipe
+        pipe.execute()
 
         return image
 
@@ -231,7 +266,6 @@ class ImagesHandler(object):
 
         if image_id:
 
-            # quick and dirty for now
             # figure out what the current id is and than grab
             # our sorted set by index assuming that all ids
             # contain an image
@@ -240,8 +274,8 @@ class ImagesHandler(object):
             # how far from the end is the id given
             d = int(next_id) - image_id
 
-            # grab the list going that far back
-            ids = self.rc.zrange('tumblrimages:ids:timestamps',-d,-1)
+            # starting back where we think this image is to + limit
+            ids = self.rc.zrange('tumblrimages:ids:timestamps',-d,-d + limit)
 
         elif timestamp:
 
