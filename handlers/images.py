@@ -99,12 +99,12 @@ class ImagesHandler(object):
         # if our image doesn't have an id, set it up w/ one
         if not image.id:
             print 'got new image: %s' % image.shahash
-            image.id = pipe.incr('images:next_id')
+            image.id = self.rc.incr('images:next_id')
             pipe.sadd('images:datainstances:%s' % image.shahash,
                          image.id)
 
         # check and see if we used to have a different shahash
-        old_shahash = pipe.hget('images:%s' % image.id,'shahash')
+        old_shahash = self.rc.hget('images:%s' % image.id,'shahash')
         if old_shahash != image.shahash:
             # remove our id from the old shahash tracker
             pipe.srem('images:datainstances:%s' % old_shahash,
@@ -203,7 +203,8 @@ class ImagesHandler(object):
         # update it's stats
         image = self.populate_image_stats(image)
 
-        # only add the image if we haven't seen it before
+        # only add the image if we haven't seen it beforeQ
+        # TODO: use new page -> id set
         # to do this we're going to have to see if there is another
         # image who has the same source page url and the same sha
         # for now: get the set images:datainstances:<sha> for the
