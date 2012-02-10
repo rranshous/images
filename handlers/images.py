@@ -125,10 +125,11 @@ class ImagesHandler(object):
         # add this image to the page's id set
         if image.source_page_url:
             pipe.zadd('images:page_ids:%s' % image.source_page_url,
-                         da, image.id)
+                      da, image.id)
 
             # update our last scrape time for the page
-            pipe.zadd('images:pages:timestamps',image.source_page_url)
+            pipe.zadd('images:pages:timestamps',
+                      image.id, source_page_url)
 
         # take our image and make a dict
         image_data = self._image_to_dict(image)
