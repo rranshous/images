@@ -129,7 +129,7 @@ class ImagesHandler(object):
 
             # update our last scrape time for the page
             pipe.zadd('images:pages:timestamps',
-                      image.id, source_page_url)
+                      image.id, image.source_page_url)
 
         # take our image and make a dict
         image_data = self._image_to_dict(image)
