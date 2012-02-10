@@ -212,8 +212,8 @@ class ImagesHandler(object):
 
         # we don't need to continue
         # we'll return back their original msg, w/o the id set
-        if found:
-            print 'image already exists, not setting'
+        if ids:
+            print 'image already exists [%s], not setting' % ids
             return image
 
         # so the image appears to be new, good for it
