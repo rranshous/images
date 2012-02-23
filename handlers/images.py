@@ -255,33 +255,53 @@ class ImagesHandler(object):
 
 
     def get_images_since(self, image_id=None, timestamp=None,
-                               limit=10, offset=0):
+                               offset=10, limit=0):
         """ returns list of tublr images or blank list which were
             added after given image id or timestamp """
 
-        if image_id:
+        print '%s %s %s %s' % (image_id,timestamp,limit,offset)
+
+        if image_id is not None:
+
+            print 'got image id'
 
             # figure out what the current id is and than grab
             # our sorted set by index assuming that all ids
             # contain an image
-            next_id = self.rc.get('tumblrimages:next_id')
+            next_id = int(self.rc.get('images:next_id') or 0)
 
             # how far from the end is the id given
-            d = int(next_id) - image_id
+            d = next_id - image_id
+            start = next_id - d
+            end = next_id - d + limit - 1
+
+            print 'getting between %s %s' % (start,end)
 
             # starting back where we think this image is to + limit
-            ids = self.rc.zrange('tumblrimages:ids:timestamps',-d,-d + limit)
+            ids = self.rc.zrange('images:ids:timestamps',start,end)
+
+            print 'got ids: %s' % ids
 
         elif timestamp:
 
             print 'from timestamp: %s' % timestamp
 
             # get ids from our sorted set by it's weight (aka timestamp)
-            ids = self.rc.zrangebyscore('tumblrimages:ids:timestamps',
+            # TODO: not use inf
+            ids = self.rc.zrangebyscore('images:ids:timestamps',
                                         timestamp,'+inf')
 
+        else:
+            print 'could not find images'
+            ids = []
+
         # page ids
-        ids = ids[limit:offset]
+        if offset < len(ids):
+            ids = ids[offset:max(len(ids),limit)]
+        else:
+            ids = []
+
+        print 'found ids: %s' % ids
 
         # return images for each ID
         images = map(self._get_from_redis,ids)
