@@ -7,3 +7,6 @@
 [submodule "lib/imgcompare"]
 	path = lib/imgcompare
 	url = git@github.com:rranshous/imgcompare.git
+[submodule "lib/revent"]
+	path = lib/revent
+	url = git@github.com:altalang/Revent.git
