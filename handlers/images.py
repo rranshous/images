@@ -8,10 +8,15 @@ from lib.imgcompare.avg import average_hash
 from cStringIO import StringIO
 from PIL import Image
 
+# events we will fire:
+#  image_added : source_page_url, source_url, shahash
+#  image_deleted : source_page_url, source_url, shahash
+
 class ImagesHandler(object):
     def __init__(self, redis_host='127.0.0.1'):
         self.redis_host = redis_host
         self.rc = Redis(redis_host)
+        self.revent = ReventClient(redis_host=self.redis_host)
 
         # redis keys
 
@@ -230,6 +235,16 @@ class ImagesHandler(object):
         # could be an update, could be new
         image = self._save_to_redis(image)
 
+        # let the world know we have added a new image
+        self.revent.fire('image_added',{
+            'source_page_url': image.source_page_url,
+            'source_url': image.source_url,
+            'shahash': image.shahash,
+            'vhash': image.vhash,
+            'xdim': image.xdim,
+            'ydim': image.ydim,
+        })
+
         return image
 
     def delete_image(self, image_id):
@@ -249,6 +264,16 @@ class ImagesHandler(object):
             # no more images w/ the same data, remove image data
             with connect(Blobby) as c:
                 c.delete_data(image.shahash)
+
+        # it's gone, let'm know
+        self.revent.fire('image_deleted',{
+            'source_page_url': image.source_page_url,
+            'source_url': image.source_url,
+            'shahash': image.shahash,
+            'vhash': image.vhash,
+            'xdim': image.xdim,
+            'ydim': image.ydim,
+        })
 
         # and we're done!
         return True
